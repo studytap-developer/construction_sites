@@ -68,51 +68,79 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      
+    <div className="p-6 bg-gradient-to-br from-slate-100 via-white to-slate-200 min-h-screen">
       {/* HEADER */}
-      <h1 className="text-3xl font-bold mb-6">📊 Dashboard</h1>
+ 
 
       {/* STATS CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-5">
-        <Card title="Total Sites" value={stats.sites} />
-        <Card title="Total Vendors" value={stats.vendors} />
-        <Card title="Total Works" value={stats.workers} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <Card
+          title="Total Sites"
+          value={stats.sites}
+          icon="🏗️"
+          color="bg-gradient-to-br from-cyan-100 to-blue-200 border-transparent"
+          textColor="text-slate-900"
+        />
+        <Card
+          title="Total Vendors"
+          value={stats.vendors}
+          icon="👷"
+          color="bg-gradient-to-br from-gray-100 to-gray-200 border-transparent"
+          textColor="text-slate-900"
+        />
+        <Card
+          title="Total Works"
+          value={stats.workers}
+          icon="👥"
+          color="bg-gradient-to-br from-violet-100 to-fuchsia-200 border-transparent"
+          textColor="text-slate-900"
+        />
 
         <Card
           title="Total Amount"
           value={`₹${stats.totalAmount}`}
-          color="text-blue-600"
+          icon="💰"
+          color="bg-gradient-to-br from-indigo-100 to-indigo-200 border-transparent"
+          textColor="text-slate-900"
         />
 
         <Card
           title="Total Paid"
           value={`₹${stats.totalPaid}`}
-          color="text-green-600"
+          icon="✅"
+          color="bg-gradient-to-br from-emerald-100 to-emerald-200 border-transparent"
+          textColor="text-slate-900"
         />
 
         <Card
           title="Pending Amount"
           value={`₹${stats.totalPending}`}
-          color="text-red-600"
+          icon="⏳"
+          color="bg-gradient-to-br from-orange-100 to-amber-200 border-transparent"
+          textColor="text-slate-900"
         />
       </div>
 
       {/* LOWER SECTION */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        {/* 🏗️ Sites */}
-        <div className="bg-white p-5 rounded-xl shadow">
-          <h2 className="text-lg font-semibold mb-3">🏗️ Sites</h2>
+        {/* Sites */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <span className="text-blue-600">🏗️</span>
+            </div>
+            <h2 className="text-lg font-semibold text-slate-800">Sites</h2>
+          </div>
 
           {stats.siteList.length === 0 ? (
-            <p className="text-gray-500 text-sm">No sites</p>
+            <p className="text-slate-500 text-sm">No sites available</p>
           ) : (
-            <ul className="space-y-2 max-h-60 overflow-y-auto pr-1">
+            <ul className="space-y-2 max-h-60 overflow-y-auto">
               {stats.siteList.map((name, i) => (
                 <li
                   key={i}
-                  className="text-sm bg-gray-50 px-3 py-2 rounded"
+                  className="text-sm bg-slate-50 px-3 py-2 rounded-md border border-slate-200 text-slate-700"
                 >
                   {name}
                 </li>
@@ -121,18 +149,23 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* 👷 Vendors */}
-        <div className="bg-white p-5 rounded-xl shadow">
-          <h2 className="text-lg font-semibold mb-3">👷 Vendors</h2>
+        {/* Vendors */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <span className="text-green-600">👷</span>
+            </div>
+            <h2 className="text-lg font-semibold text-slate-800">Vendors</h2>
+          </div>
 
           {stats.vendorList.length === 0 ? (
-            <p className="text-gray-500 text-sm">No vendors</p>
+            <p className="text-slate-500 text-sm">No vendors available</p>
           ) : (
-            <ul className="space-y-2 max-h-60 overflow-y-auto pr-1">
+            <ul className="space-y-2 max-h-60 overflow-y-auto">
               {stats.vendorList.map((name, i) => (
                 <li
                   key={i}
-                  className="text-sm bg-gray-50 px-3 py-2 rounded"
+                  className="text-sm bg-slate-50 px-3 py-2 rounded-md border border-slate-200 text-slate-700"
                 >
                   {name}
                 </li>
@@ -143,9 +176,9 @@ export default function Dashboard() {
       </div>
 
       {/* FOOTER */}
-      <div className="mt-8 bg-white p-5 rounded-xl shadow text-center">
-        <p className="text-gray-400">
-          📈 More analytics features coming soon...
+      <div className="mt-8 bg-white p-6 rounded-2xl shadow-lg border border-slate-200 text-center">
+        <p className="text-slate-500 font-medium">
+          Advanced reporting and KPI analytics coming soon. You're building a smart construction command center.
         </p>
       </div>
     </div>
@@ -153,13 +186,20 @@ export default function Dashboard() {
 }
 
 /* 🔥 CARD COMPONENT */
-function Card({ title, value, color }) {
+function Card({ title, value, icon, color, textColor }) {
   return (
-    <div className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
-      <h2 className="text-gray-500 text-sm">{title}</h2>
-      <p className={`text-2xl font-bold mt-2 ${color || ""}`}>
-        {value}
-      </p>
+    <div
+      className={`relative overflow-hidden rounded-2xl border p-6 shadow-lg transition duration-300 hover:-translate-y-1 hover:shadow-xl ${color || "bg-white border-slate-200"}`}>
+      <div className="absolute inset-0 bg-white opacity-0 transition-opacity duration-500 hover:opacity-10" />
+      <div className="relative flex items-center justify-between">
+        <div>
+          <h2 className="text-slate-500 text-sm font-semibold">{title}</h2>
+          <p className={`text-2xl font-extrabold mt-2 ${textColor || "text-slate-900"}`}>
+            {value}
+          </p>
+        </div>
+        <div className="text-3xl opacity-85">{icon}</div>
+      </div>
     </div>
   );
 }

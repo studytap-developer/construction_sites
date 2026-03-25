@@ -183,11 +183,11 @@ const [uploadMessage, setUploadMessage] = useState(""); // ✅ Success or Error 
   };
 
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file || !uploadContext) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length || !uploadContext) return;
 
     const formData = new FormData();
-    formData.append("bill", file);
+    files.forEach((file) => formData.append("bill", file));
 
     try {
       await axios.post(
@@ -196,11 +196,13 @@ const [uploadMessage, setUploadMessage] = useState(""); // ✅ Success or Error 
         { headers: { "Content-Type": "multipart/form-data" } },
       );
 
-      showUploadToast("Bill uploaded ✅");
+      showUploadToast(`Bill${files.length > 1 ? "s" : ""} uploaded ✅`);
       fetchSites();
     } catch (err) {
       console.error(err);
       showUploadToast("Upload failed ❌");
+    } finally {
+      e.target.value = "";
     }
   };
 
@@ -217,9 +219,9 @@ const [uploadMessage, setUploadMessage] = useState(""); // ✅ Success or Error 
         + Add Site
       </button>
 
-      <div className="flex flex-col md:flex-row md:flex-wrap gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {sites.map((site) => (
-          <div key={site._id} className="bg-white rounded shadow h-full flex flex-col overflow-hidden w-full md:w-1/2 lg:w-1/3">
+          <div key={site._id} className="bg-white rounded shadow h-full flex flex-col overflow-hidden w-full">
             {/* SITE HEADER */}
             <div
               className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 cursor-pointer hover:bg-gray-50"
@@ -260,14 +262,14 @@ const [uploadMessage, setUploadMessage] = useState(""); // ✅ Success or Error 
       <Dialog
         open={modalOpen}
         onClose={closeModal}
-        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 sm:p-6"
       >
-        <Dialog.Panel className="bg-white p-6 rounded w-full max-w-md sm:max-w-lg md:max-w-xl relative">
-          <button onClick={closeModal} className="absolute top-2 right-2">
+        <Dialog.Panel className="bg-white p-4 sm:p-6 rounded-lg w-full max-w-sm sm:max-w-md md:max-w-lg relative shadow-lg">
+          <button onClick={closeModal} className="absolute top-2 right-2 p-1 rounded hover:bg-gray-100">
             <X />
           </button>
 
-          <h2 className="text-xl font-bold mb-4">
+          <h2 className="text-lg sm:text-xl font-bold mb-4 text-center">
             {modalType === "addWorker"
               ? "Add Work"
               : modalType === "editWorker"
@@ -568,11 +570,11 @@ export function SiteDetail() {
   };
 
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file || !uploadContext) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length || !uploadContext) return;
 
     const formData = new FormData();
-    formData.append("bill", file);
+    files.forEach((file) => formData.append("bill", file));
 
     try {
       await axios.post(
@@ -581,11 +583,13 @@ export function SiteDetail() {
         { headers: { "Content-Type": "multipart/form-data" } },
       );
 
-      showUploadToast("Bill uploaded ✅");
+      showUploadToast(`Bill${files.length > 1 ? "s" : ""} uploaded ✅`);
       fetchSite();
     } catch (err) {
       console.error(err);
       showUploadToast("Upload failed ❌");
+    } finally {
+      e.target.value = "";
     }
   };
 
@@ -602,8 +606,8 @@ export function SiteDetail() {
     );
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
+    <div className="p-4 sm:p-6 bg-gray-100 min-h-screen">
+      <div className="mx-auto w-full max-w-6xl px-3 sm:px-6">
         <button
           onClick={() => navigate("/app/sites")}
           className="mb-4 bg-gray-300 text-gray-800 px-4 py-2 rounded"
@@ -622,10 +626,10 @@ export function SiteDetail() {
           + Add Vendor
         </button>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4">
           {(site.vendors || []).map((vendor, vIndex) => (
             <div key={vIndex} className="bg-white p-4 rounded shadow">
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
                 <h2
                   className={`text-xl font-semibold cursor-pointer ${
                     activeVendor === vIndex ? "text-blue-800" : "hover:text-blue-600"
@@ -636,7 +640,7 @@ export function SiteDetail() {
                 >
                   Vendor: {vendor.name}
                 </h2>
-                <div className="space-x-2">
+                <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => openModal("editVendor", vIndex)}
                     className="bg-yellow-500 text-white px-2 py-1 rounded text-sm"
@@ -666,10 +670,10 @@ export function SiteDetail() {
                     const pending = worker.amount - worker.paid;
                     return (
                       <div key={wIndex} className="bg-gray-50 p-3 mb-3 rounded">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex-1">
-                            <p className="font-semibold">{worker.name}</p>
-                            <p className="text-sm text-gray-600">Work: {worker.work}</p>
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-base sm:text-lg font-semibold truncate">{worker.name}</p>
+                            <p className="text-sm text-gray-600 truncate">Work: {worker.work}</p>
                             <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:gap-4">
                               <span>Paid: ₹{worker.paid}</span>
                               <span>Total:₹{worker.amount}</span>
@@ -678,7 +682,7 @@ export function SiteDetail() {
                               {pending === 0 ? "Paid" : `Pending ₹${pending}`}
                             </p>
                           </div>
-                          <div className="space-x-1">
+                          <div className="flex flex-wrap gap-1 sm:gap-1">
                             <button
                               onClick={() => openModal("editWorker", vIndex, wIndex, worker)}
                               className="bg-yellow-400 text-white px-2 py-1 rounded text-xs"
@@ -707,6 +711,55 @@ export function SiteDetail() {
                           Upload Bill
                         </button>
 
+                        {(() => {
+                          const bills =
+                            Array.isArray(worker.bill) && worker.bill.length > 0
+                              ? worker.bill
+                              : worker.bill
+                              ? [worker.bill]
+                              : [];
+
+                          if (bills.length === 0) return null;
+
+                          return (
+                            <div className="mt-2 bg-white p-2 rounded border">
+                              <p className="text-xs font-semibold text-gray-700 mb-1">Bills</p>
+                              <div className="flex flex-wrap gap-2">
+                                {bills.map((billUrl, bIdx) => {
+                                  const fullUrl = `http://localhost:8000${billUrl}`;
+                                  return (
+                                    <div key={bIdx} className="relative w-16 h-16 sm:w-20 sm:h-20 border rounded overflow-hidden">
+                                      <img
+                                        src={fullUrl}
+                                        alt={`bill-${bIdx}`}
+                                        className="w-full h-full object-cover"
+                                      />
+                                      <button
+                                        onClick={async () => {
+                                          try {
+                                            await axios.delete(
+                                              `${API}/sites/${site._id}/vendors/${vIndex}/workers/${wIndex}/delete-bill`,
+                                              { params: { path: billUrl } },
+                                            );
+                                            showUploadToast("Bill deleted ✅");
+                                            fetchSite();
+                                          } catch (err) {
+                                            console.error(err);
+                                            showUploadToast("Delete failed ❌");
+                                          }
+                                        }}
+                                        className="absolute top-0 right-0 bg-red-600 text-white text-[9px] px-1 py-0.5"
+                                      >
+                                        Remove
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
                         {worker.payments && worker.payments.length > 0 && (
                           <div className="mt-2 bg-white p-2 rounded border">
                             <p className="text-xs font-semibold text-gray-700 mb-1">Payment History</p>
@@ -733,14 +786,14 @@ export function SiteDetail() {
       <Dialog
         open={modalOpen}
         onClose={closeModal}
-        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 sm:p-6"
       >
-        <Dialog.Panel className="bg-white p-6 rounded w-full max-w-md sm:max-w-lg md:max-w-xl relative">
-          <button onClick={closeModal} className="absolute top-2 right-2">
+        <Dialog.Panel className="bg-white p-4 sm:p-6 rounded-lg w-full max-w-sm sm:max-w-md md:max-w-lg relative shadow-lg">
+          <button onClick={closeModal} className="absolute top-2 right-2 p-1 rounded hover:bg-gray-100">
             <X />
           </button>
 
-          <h2 className="text-xl font-bold mb-4">
+          <h2 className="text-lg sm:text-xl font-bold mb-4 text-center">
             {modalType === "addWorker"
               ? "Add Work"
               : modalType === "editWorker"
@@ -866,6 +919,7 @@ export function SiteDetail() {
         onChange={handleFileChange}
         className="hidden"
         accept="image/*"
+        multiple
       />
     </div>
   );
@@ -878,6 +932,10 @@ export function VendorDetail() {
   const [siteName, setSiteName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState("");
+  const fileRef = useRef();
+  const [uploadContext, setUploadContext] = useState(null);
   const API = "http://localhost:8000/api";
 
   useEffect(() => {
@@ -902,6 +960,42 @@ export function VendorDetail() {
 
     fetchVendor();
   }, [id, vendorIndex]);
+
+  const showUploadToast = (msg) => {
+    setUploadMessage(msg);
+    setUploadModalOpen(true);
+    setTimeout(() => setUploadModalOpen(false), 2500);
+  };
+
+  const handleUploadClick = (wIndex) => {
+    setUploadContext({ wIndex });
+    fileRef.current.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length || !uploadContext) return;
+
+    const formData = new FormData();
+    files.forEach((file) => formData.append("bill", file));
+
+    try {
+      await axios.post(
+        `${API}/sites/${id}/vendors/${vendorIndex}/workers/${uploadContext.wIndex}/upload-bill`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } },
+      );
+      showUploadToast(`Bill${files.length > 1 ? "s" : ""} uploaded ✅`);
+      const res = await axios.get(`${API}/sites/${id}`);
+      const siteData = res.data;
+      setVendor(siteData.vendors?.[Number(vendorIndex)] || null);
+    } catch (err) {
+      console.error(err);
+      showUploadToast("Upload failed ❌");
+    } finally {
+      e.target.value = "";
+    }
+  };
 
   if (loading) return <div className="p-6">Loading vendor details...</div>;
 
@@ -943,6 +1037,64 @@ export function VendorDetail() {
                   {pending === 0 ? "Paid" : `Pending ₹${pending}`}
                 </p>
 
+                <button
+                  onClick={() => handleUploadClick(idx)}
+                  className="text-xs text-blue-600 hover:underline mt-2"
+                >
+                  Upload Bill
+                </button>
+
+                {(() => {
+                  const bills =
+                    Array.isArray(worker.bill) && worker.bill.length > 0
+                      ? worker.bill
+                      : worker.bill
+                      ? [worker.bill]
+                      : [];
+
+                  if (bills.length === 0) return null;
+
+                  return (
+                    <div className="mt-2 bg-white p-2 rounded border">
+                      <p className="text-xs font-semibold text-gray-700 mb-1">Bills</p>
+                      <div className="flex flex-wrap gap-2">
+                        {bills.map((billUrl, bIdx) => {
+                          const fullUrl = `http://localhost:8000${billUrl}`;
+                          return (
+                            <div key={bIdx} className="relative w-20 h-20 border rounded overflow-hidden">
+                              <img
+                                src={fullUrl}
+                                alt={`bill-${bIdx}`}
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    await axios.delete(
+                                      `${API}/sites/${id}/vendors/${vendorIndex}/workers/${idx}/delete-bill`,
+                                      { params: { path: billUrl } },
+                                    );
+                                    showUploadToast("Bill deleted ✅");
+                                    const res = await axios.get(`${API}/sites/${id}`);
+                                    const siteData = res.data;
+                                    setVendor(siteData.vendors?.[Number(vendorIndex)] || null);
+                                  } catch (err) {
+                                    console.error(err);
+                                    showUploadToast("Delete failed ❌");
+                                  }
+                                }}
+                                className="absolute top-0 right-0 bg-red-600 text-white text-[9px] px-1 py-0.5"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {worker.payments && worker.payments.length > 0 && (
                   <div className="mt-2 bg-white p-2 rounded border">
                     <p className="text-xs font-semibold text-gray-700 mb-1">Payment History</p>
@@ -958,6 +1110,14 @@ export function VendorDetail() {
           })}
         </div>
       </div>
+      <input
+        type="file"
+        ref={fileRef}
+        onChange={handleFileChange}
+        className="hidden"
+        accept="image/*"
+        multiple
+      />
     </div>
   );
 }

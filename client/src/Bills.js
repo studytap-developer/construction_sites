@@ -42,7 +42,8 @@ export default function Bills() {
 
     try {
       await axios.delete(
-        `${API}/sites/${billToDelete.siteId}/vendors/${billToDelete.vendorIndex}/workers/${billToDelete.workerIndex}/delete-bill`
+        `${API}/sites/${billToDelete.siteId}/vendors/${billToDelete.vendorIndex}/workers/${billToDelete.workerIndex}/delete-bill`,
+        { params: { path: billToDelete.bill } }
       );
 
       // Remove from state
@@ -52,7 +53,8 @@ export default function Bills() {
             !(
               b.siteId === billToDelete.siteId &&
               b.vendorIndex === billToDelete.vendorIndex &&
-              b.workerIndex === billToDelete.workerIndex
+              b.workerIndex === billToDelete.workerIndex &&
+              b.bill === billToDelete.bill
             )
         )
       );
@@ -110,7 +112,7 @@ export default function Bills() {
                 <p className="text-sm">Worker: {bill.workerName}</p>
                 <p className="text-sm">Work: {bill.work}</p>
                 <p className="text-sm font-semibold mt-2">
-                  ₹{bill.paid} / ₹{bill.amount}
+                  Paid ₹{bill.paid} / Pending ₹{bill.amount}
                 </p>
 
                 {/* ACTION BUTTONS */}
