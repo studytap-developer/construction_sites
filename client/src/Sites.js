@@ -32,7 +32,9 @@ const [uploadMessage, setUploadMessage] = useState(""); // ✅ Success or Error 
     amount: "",
   });
 
-  const API = "http://localhost:8000/api";
+  // const API = "http://localhost:8000/api";
+
+  const API = "https://construction-sites-1.onrender.com/api";
 
   const fetchSites = async () => {
     const res = await axios.get(`${API}/sites`);
@@ -428,7 +430,8 @@ export function SiteDetail() {
   const [activeVendor, setActiveVendor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const API = "http://localhost:8000/api";
+  // const API = "http://localhost:8000/api";
+  const API = "https://construction-sites-1.onrender.com/api";
 
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
@@ -726,7 +729,8 @@ export function SiteDetail() {
                               <p className="text-xs font-semibold text-gray-700 mb-1">Bills</p>
                               <div className="flex flex-wrap gap-2">
                                 {bills.map((billUrl, bIdx) => {
-                                  const fullUrl = `http://localhost:8000${billUrl}`;
+                                  // const fullUrl = `http://localhost:8000${billUrl}`;
+                                  const fullUrl = `https://construction-sites-1.onrender.com${billUrl}`;
                                   return (
                                     <div key={bIdx} className="relative w-16 h-16 sm:w-20 sm:h-20 border rounded overflow-hidden">
                                       <img
@@ -936,7 +940,8 @@ export function VendorDetail() {
   const [uploadMessage, setUploadMessage] = useState("");
   const fileRef = useRef();
   const [uploadContext, setUploadContext] = useState(null);
-  const API = "http://localhost:8000/api";
+  //const API = "http://localhost:8000/api";
+     const API = "https://construction-sites-1.onrender.com/api";
 
   useEffect(() => {
     const fetchVendor = async () => {
@@ -1059,7 +1064,7 @@ export function VendorDetail() {
                       <p className="text-xs font-semibold text-gray-700 mb-1">Bills</p>
                       <div className="flex flex-wrap gap-2">
                         {bills.map((billUrl, bIdx) => {
-                          const fullUrl = `http://localhost:8000${billUrl}`;
+                          const fullUrl = `https://construction-sites-1.onrender.com${billUrl}`;
                           return (
                             <div key={bIdx} className="relative w-20 h-20 border rounded overflow-hidden">
                               <img
