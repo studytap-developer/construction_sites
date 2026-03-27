@@ -8,7 +8,9 @@ const path = require("path");
 const app = express();
 require("dotenv").config();
 
-app.use(cors({ origin: "*" }));
+// app.use(cors({ origin: "*" }));
+
+app.use(cors());
 app.use(express.json());
 
 // =========================
@@ -347,4 +349,6 @@ app.use("/uploads", express.static("uploads"));
 // =========================
 // START SERVER
 // =========================
-app.listen(8000, () => console.log("🚀 Server running on http://localhost:8000"));
+// app.listen(8000, () => console.log("🚀 Server running on http://localhost:8000"));
+
+app.listen(8000, () => console.log("🚀 Server running on https://construction-sites-1.onrender.com/"));

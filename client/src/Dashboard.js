@@ -13,7 +13,9 @@ export default function Dashboard() {
     siteList: [],
   });
 
-  const API = "http://localhost:8000/api";
+  // const API = "http://localhost:8000/api";
+
+  const API = "https://construction-sites-1.onrender.com/api";
 
   const fetchData = async () => {
     try {
