@@ -56,6 +56,10 @@ const SiteSchema = new mongoose.Schema({
 });
 const Site = mongoose.model("Site", SiteSchema);
 
+app.get("/", (req, res) => {
+  res.send("servr is running");
+});
+
 // =========================
 // LOGIN
 // =========================
@@ -73,6 +77,8 @@ app.post("/api/login", async (req, res) => {
 // =========================
 // SITE ROUTES
 // =========================
+
+
 app.post("/api/sites", async (req, res) => {
   const site = new Site(req.body);
   await site.save();
