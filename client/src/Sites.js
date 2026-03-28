@@ -34,8 +34,8 @@ const [uploadMessage, setUploadMessage] = useState(""); // ✅ Success or Error 
 
   // const API = "http://localhost:8000/api";
 
-  const API = "https://construction-sites-1.onrender.com/api";
-
+  // const API = "https://construction-sites-1.onrender.com/api";
+  const API = "https://construction-sites-b5y5.onrender.com/api";  
   const fetchSites = async () => {
     const res = await axios.get(`${API}/sites`);
     setSites(res.data);
@@ -431,7 +431,7 @@ export function SiteDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   // const API = "http://localhost:8000/api";
-  const API = "https://construction-sites-1.onrender.com/api";
+  const API = "https://construction-sites-b5y5.onrender.com/api";
 
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
@@ -730,7 +730,7 @@ export function SiteDetail() {
                               <div className="flex flex-wrap gap-2">
                                 {bills.map((billUrl, bIdx) => {
                                   // const fullUrl = `http://localhost:8000${billUrl}`;
-                                  const fullUrl = `https://construction-sites-1.onrender.com${billUrl}`;
+                                  const fullUrl = `https://construction-sites-b5y5.onrender.com${billUrl}`;
                                   return (
                                     <div key={bIdx} className="relative w-16 h-16 sm:w-20 sm:h-20 border rounded overflow-hidden">
                                       <img

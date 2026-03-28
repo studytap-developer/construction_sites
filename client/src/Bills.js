@@ -8,8 +8,8 @@ export default function Bills() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [billToDelete, setBillToDelete] = useState(null);
 
-  // const API = "http://localhost:8000/api";
-  const API = "https://construction-sites-1.onrender.com/api";
+   const API = "https://construction-sites-b5y5.onrender.com/api";
+ // const API = "https://construction-sites-1.onrender.com/api";
 
   // Fetch all bills
   const fetchBills = async () => {
@@ -92,7 +92,7 @@ export default function Bills() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-h-[520px] overflow-y-auto">
           {filteredBills.map((bill, index) => {
             // const imageUrl = `http://localhost:8000${bill.bill}`;
-            const imageUrl = `https://construction-sites-1.onrender.com${bill.bill}`;
+            const imageUrl = `https://construction-sites-b5y5.onrender.com${bill.bill}`;
 
 
             return (

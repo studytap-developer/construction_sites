@@ -15,7 +15,7 @@ export default function Dashboard() {
 
   // const API = "http://localhost:8000/api";
 
-  const API = "https://construction-sites-1.onrender.com/api";
+  const API = "https://construction-sites-b5y5.onrender.com/api";
 
   const fetchData = async () => {
     try {
