@@ -10,10 +10,12 @@ export default function Home() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const API = process.env.REACT_APP_API_URL || "https://construction-sites-b5y5.onrender.com/api";
+
   const handleLogin = async () => {
     try {
       // Removed unused `res` to fix ESLint warning
-       await axios.post("https://construction-sites-b5y5.onrender.com/api/login", {
+       await axios.post(`${API}/login`, {
      //  await axios.post("http://localhost:8000/api/login", {
            // await axios.post("https://construction-sites-1.onrender.com/api/login", {
 

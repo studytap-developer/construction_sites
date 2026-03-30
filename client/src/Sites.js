@@ -1133,6 +1133,9 @@ import { X } from "lucide-react";
 import { useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+const API = process.env.REACT_APP_API_URL || "https://construction-sites-b5y5.onrender.com/api";
+const backendBase = API.replace(/\/api\/?$/, "");
+
 export default function Sites() {
   const navigate = useNavigate();
   const [sites, setSites] = useState([]);
@@ -1142,12 +1145,6 @@ export default function Sites() {
   const [currentSite, setCurrentSite] = useState(null);
   const [currentVendorIndex, setCurrentVendorIndex] = useState(null);
   const [currentWorkerIndex, setCurrentWorkerIndex] = useState(null);
-
-  const fileRef = useRef();
-  const [uploadContext, setUploadContext] = useState(null);
-
-  const [uploadModalOpen, setUploadModalOpen] = useState(false);
-  const [uploadMessage, setUploadMessage] = useState(""); // ✅ Success or Error message
 
   const [formData, setFormData] = useState({
     name: "",
@@ -1161,7 +1158,7 @@ export default function Sites() {
   // const API = "http://localhost:8000/api";
 
   // const API = "https://construction-sites-1.onrender.com/api";
-  const API = "https://construction-sites-b5y5.onrender.com/api";
+ // const API = "https://construction-sites-b5y5.onrender.com/api";
   const fetchSites = async () => {
     const res = await axios.get(`${API}/sites`);
     setSites(res.data);
@@ -1297,42 +1294,6 @@ export default function Sites() {
   //   );
   //   fetchSites();
   // };
-  //==============upload===============
-
-  const handleUploadClick = (siteId, vIndex, wIndex) => {
-    setUploadContext({ siteId, vIndex, wIndex });
-    fileRef.current.click();
-  };
-
-  const showUploadToast = (msg) => {
-    setUploadMessage(msg);
-    setUploadModalOpen(true);
-    setTimeout(() => setUploadModalOpen(false), 2500);
-  };
-
-  const handleFileChange = async (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length || !uploadContext) return;
-
-    const formData = new FormData();
-    files.forEach((file) => formData.append("bill", file));
-
-    try {
-      await axios.post(
-        `${API}/sites/${uploadContext.siteId}/vendors/${uploadContext.vIndex}/workers/${uploadContext.wIndex}/upload-bill`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } },
-      );
-
-      showUploadToast(`Bill${files.length > 1 ? "s" : ""} uploaded ✅`);
-      fetchSites();
-    } catch (err) {
-      console.error(err);
-      showUploadToast("Upload failed ❌");
-    } finally {
-      e.target.value = "";
-    }
-  };
 
   // ================= UI =================
   return (
@@ -1544,13 +1505,6 @@ export default function Sites() {
             </div>
           </Dialog.Panel>
         </Dialog>
-
-        {/* UPLOAD FEEDBACK TOAST */}
-        {uploadModalOpen && (
-          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-sm rounded-lg border border-blue-300 bg-blue-50 px-4 py-2 shadow-lg text-center text-sm text-blue-800">
-            {uploadMessage}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1564,7 +1518,7 @@ export function SiteDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   // const API = "http://localhost:8000/api";
-  const API = "https://construction-sites-b5y5.onrender.com/api";
+  // const API = "https://construction-sites-b5y5.onrender.com/api";
 
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
@@ -1730,14 +1684,15 @@ export function SiteDetail() {
       await axios.post(
         `${API}/sites/${id}/vendors/${uploadContext.vIndex}/workers/${uploadContext.wIndex}/upload-bill`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } },
       );
 
       showUploadToast(`Bill${files.length > 1 ? "s" : ""} uploaded ✅`);
       fetchSite();
     } catch (err) {
+      const serverMessage =
+        err.response?.data?.error || err.message || "Upload failed ❌";
       console.error(err);
-      showUploadToast("Upload failed ❌");
+      showUploadToast(serverMessage);
     } finally {
       e.target.value = "";
     }
@@ -1908,7 +1863,7 @@ export function SiteDetail() {
     typeof billUrl === "string"
       ? billUrl.startsWith("http")
         ? billUrl
-        : `https://construction-sites-b5y5.onrender.com${billUrl}`
+        : `${backendBase}${billUrl}`
       : "";
                                   return (
                                     <div
@@ -2131,7 +2086,8 @@ export function VendorDetail() {
   const fileRef = useRef();
   const [uploadContext, setUploadContext] = useState(null);
   //const API = "http://localhost:8000/api";
-  const API = "https://construction-sites-1.onrender.com/api";
+  // const API = "https://construction-sites-1.onrender.com/api";
+
 
   useEffect(() => {
     const fetchVendor = async () => {
@@ -2178,7 +2134,7 @@ export function VendorDetail() {
       await axios.post(
         `${API}/sites/${id}/vendors/${vendorIndex}/workers/${uploadContext.wIndex}/upload-bill`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } },
+        // { headers: { "Content-Type": "multipart/form-data" } },
       );
       showUploadToast(`Bill${files.length > 1 ? "s" : ""} uploaded ✅`);
       const res = await axios.get(`${API}/sites/${id}`);
@@ -2263,7 +2219,12 @@ export function VendorDetail() {
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {bills.map((billUrl, bIdx) => {
-                          const fullUrl = `https://construction-sites-1.onrender.com${billUrl}`;
+const fullUrl =
+  typeof billUrl === "string"
+    ? billUrl.startsWith("http")
+      ? billUrl
+      : `${backendBase}${billUrl}`
+    : "";
                           return (
                             <div
                               key={bIdx}
@@ -2333,7 +2294,13 @@ export function VendorDetail() {
         accept="image/*"
         multiple
       />
+      {uploadModalOpen && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-sm rounded-lg border border-blue-300 bg-blue-50 px-4 py-2 shadow-lg text-center text-sm text-blue-800">
+          {uploadMessage}
+        </div>
+      )}
     </div>
   );
 }
+
 

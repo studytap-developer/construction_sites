@@ -370,13 +370,21 @@
 
 
 
+require("dotenv").config(); // ✅ MUST BE FIRST
 
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config();
 
 const app = express();
+
+// =========================
+// DEBUG ENV (REMOVE LATER)
+// =========================
+console.log("CLOUD_NAME:", process.env.CLOUD_NAME);
+console.log("API_KEY:", process.env.CLOUD_API_KEY);
+console.log("API_SECRET:", process.env.CLOUD_API_SECRET ? "OK" : "MISSING");
+console.log("MONGO:", process.env.MONGO_URI ? "OK" : "MISSING");
 
 // =========================
 // CLOUDINARY SETUP
@@ -401,13 +409,19 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
+  limits: { fileSize: 2 * 1024 * 1024 },
 });
 
 // =========================
 // MIDDLEWARE
 // =========================
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
+
 app.use(express.json());
 
 // =========================
@@ -416,7 +430,7 @@ app.use(express.json());
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.log(err));
+  .catch((err) => console.log("❌ Mongo Error:", err));
 
 // =========================
 // SCHEMA
@@ -454,13 +468,13 @@ const Site = mongoose.model("Site", SiteSchema);
 // ROOT
 // =========================
 app.get("/", (req, res) => {
-  res.send("server is running");
+  res.send("🚀 Server Running");
 });
 
 // =========================
 // LOGIN
 // =========================
-app.post("/api/login", async (req, res) => {
+app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
 
   if (
@@ -510,7 +524,7 @@ app.delete("/api/sites/:id", async (req, res) => {
 });
 
 // =========================
-// VENDOR ROUTES
+// VENDOR
 // =========================
 app.post("/api/sites/:id/vendors", async (req, res) => {
   const site = await Site.findById(req.params.id);
@@ -519,45 +533,47 @@ app.post("/api/sites/:id/vendors", async (req, res) => {
   res.json(site);
 });
 
-app.put("/api/sites/:siteId/vendors/:vendorIndex", async (req, res) => {
+app.put("/api/sites/:siteId/vendors/:vIndex", async (req, res) => {
   const site = await Site.findById(req.params.siteId);
-  const i = Number(req.params.vendorIndex);
-  site.vendors[i].name = req.body.name;
-  site.vendors[i].phone = req.body.phone;
+  const v = Number(req.params.vIndex);
+
+  site.vendors[v].name = req.body.name;
+  site.vendors[v].phone = req.body.phone;
+
   await site.save();
   res.json(site);
 });
 
-app.delete("/api/sites/:siteId/vendors/:vendorIndex", async (req, res) => {
+app.delete("/api/sites/:siteId/vendors/:vIndex", async (req, res) => {
   const site = await Site.findById(req.params.siteId);
-  const i = Number(req.params.vendorIndex);
-  site.vendors.splice(i, 1);
+  site.vendors.splice(Number(req.params.vIndex), 1);
   await site.save();
   res.json(site);
 });
 
 // =========================
-// WORKER ROUTES
+// WORKERS
 // =========================
-app.post("/api/sites/:siteId/vendors/:vendorIndex/workers", async (req, res) => {
+app.post("/api/sites/:siteId/vendors/:vIndex/workers", async (req, res) => {
   const site = await Site.findById(req.params.siteId);
-  const i = Number(req.params.vendorIndex);
-  site.vendors[i].workers.push({ ...req.body, paid: 0 });
+  site.vendors[req.params.vIndex].workers.push({
+    ...req.body,
+    paid: 0,
+  });
   await site.save();
   res.json(site);
 });
 
 app.put(
-  "/api/sites/:siteId/vendors/:vendorIndex/workers/:workerIndex",
+  "/api/sites/:siteId/vendors/:vIndex/workers/:wIndex",
   async (req, res) => {
     const site = await Site.findById(req.params.siteId);
-    const v = Number(req.params.vendorIndex);
-    const w = Number(req.params.workerIndex);
+    const worker =
+      site.vendors[req.params.vIndex].workers[req.params.wIndex];
 
-    const worker = site.vendors[v].workers[w];
     worker.name = req.body.name;
     worker.work = req.body.work;
-    worker.amount = Number(req.body.amount);
+    worker.amount = req.body.amount;
 
     await site.save();
     res.json(site);
@@ -565,13 +581,13 @@ app.put(
 );
 
 app.delete(
-  "/api/sites/:siteId/vendors/:vendorIndex/workers/:workerIndex",
+  "/api/sites/:siteId/vendors/:vIndex/workers/:wIndex",
   async (req, res) => {
     const site = await Site.findById(req.params.siteId);
-    const v = Number(req.params.vendorIndex);
-    const w = Number(req.params.workerIndex);
-
-    site.vendors[v].workers.splice(w, 1);
+    site.vendors[req.params.vIndex].workers.splice(
+      req.params.wIndex,
+      1
+    );
     await site.save();
     res.json(site);
   }
@@ -581,19 +597,16 @@ app.delete(
 // PAYMENT
 // =========================
 app.post(
-  "/api/sites/:siteId/vendors/:vendorIndex/workers/:workerIndex/pay",
+  "/api/sites/:siteId/vendors/:vIndex/workers/:wIndex/pay",
   async (req, res) => {
     const site = await Site.findById(req.params.siteId);
-    const v = Number(req.params.vendorIndex);
-    const w = Number(req.params.workerIndex);
-
-    const worker = site.vendors[v]?.workers[w];
-    if (!worker) return res.status(400).json({ error: "Worker not found" });
+    const worker =
+      site.vendors[req.params.vIndex].workers[req.params.wIndex];
 
     const amount = Number(req.body.amount);
     worker.paid += amount;
 
-    worker.payments.push({ amount, date: new Date() });
+    worker.payments.push({ amount });
 
     await site.save();
     res.json(worker);
@@ -601,78 +614,64 @@ app.post(
 );
 
 // =========================
-// UPLOAD BILL (CLOUDINARY)
+// UPLOAD BILL
 // =========================
 app.post(
   "/api/sites/:siteId/vendors/:vIndex/workers/:wIndex/upload-bill",
-  upload.array("bill", 20),
+  upload.array("bill", 10),
   async (req, res) => {
     try {
-      const { siteId, vIndex, wIndex } = req.params;
-      const site = await Site.findById(siteId);
+      const site = await Site.findById(req.params.siteId);
+      const worker =
+        site.vendors[req.params.vIndex].workers[req.params.wIndex];
 
-      const v = Number(vIndex);
-      const w = Number(wIndex);
+      const urls = req.files.map((f) => f.path);
 
-      const worker = site.vendors[v]?.workers[w];
-      if (!worker) return res.status(400).json({ error: "Worker not found" });
-
-      const uploaded = req.files.map((file) => file.path); // ✅ Cloudinary URL
-
-      let currentBills = Array.isArray(worker.bill)
-        ? worker.bill
-        : worker.bill
-        ? [worker.bill]
-        : [];
-
-      currentBills.push(...uploaded);
-
-      worker.bill = currentBills;
+      worker.bill = [...(worker.bill || []), ...urls];
 
       await site.save();
 
-      res.json({ message: "Uploaded", files: uploaded });
+      res.json({ message: "Uploaded", urls });
     } catch (err) {
-      console.error(err);
+      console.error("UPLOAD ERROR:", err);
       res.status(500).json({ error: err.message });
     }
   }
 );
 
 // =========================
-// DELETE BILL (CLOUDINARY)
+// DELETE BILL (FIXED)
 // =========================
 app.delete(
   "/api/sites/:siteId/vendors/:vIndex/workers/:wIndex/delete-bill",
   async (req, res) => {
     try {
-      const { siteId, vIndex, wIndex } = req.params;
       const { path } = req.query;
 
-      const site = await Site.findById(siteId);
-      const worker = site.vendors[vIndex]?.workers[wIndex];
+      console.log("DELETE PATH:", path);
 
-      if (!worker) return res.status(400).json({ error: "Worker not found" });
+      const site = await Site.findById(req.params.siteId);
+      const worker =
+        site.vendors[req.params.vIndex].workers[req.params.wIndex];
 
-      if (path) {
-        // delete from cloudinary
-        const publicId = path
-          .split("/")
-          .slice(-2)
-          .join("/")
-          .split(".")[0];
+      // REMOVE FROM DB
+      worker.bill = worker.bill.filter((b) => b !== path);
 
-        await cloudinary.uploader.destroy(publicId);
-
-        worker.bill = worker.bill.filter((b) => b !== path);
-      } else {
-        worker.bill = [];
+      // DELETE FROM CLOUDINARY (ONLY IF CLOUD URL)
+      if (path && path.includes("cloudinary")) {
+        try {
+          const publicId = path.split("/").pop().split(".")[0];
+          await cloudinary.uploader.destroy(`bills/${publicId}`);
+        } catch (err) {
+          console.log("Cloud delete failed:", err.message);
+        }
       }
 
       await site.save();
 
       res.json({ message: "Deleted" });
     } catch (err) {
+      console.error("DELETE ERROR:", err);
       res.status(500).json({ error: err.message });
     }
   }
@@ -682,5 +681,5 @@ app.delete(
 // START SERVER
 // =========================
 app.listen(8000, () =>
-  console.log("🚀 Server running on https://construction-sites-b5y5.onrender.com")
+  console.log("🚀 Server running on port 8000")
 );
